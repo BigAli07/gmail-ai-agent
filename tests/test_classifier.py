@@ -149,3 +149,20 @@ def test_competition_content_overrides_company_sender(
     result = HybridAnalyzer(None, "unused", 0.75).analyze(message)
     assert result.classification == Classification.IMPORTANT
     assert result.category == Category.HACKATHON
+
+
+@pytest.mark.parametrize(
+    ("sender_name", "sender_email", "content"),
+    [
+        ("Apex Focus Group", "offers@apexfocusgroup.example", "Paid research opportunity"),
+        ("ApexFocusGroup", "person@example.test", "SJSU scholarship and hackathon"),
+    ],
+)
+def test_apex_focus_group_is_always_low_priority(
+    make_message, sender_name, sender_email, content
+) -> None:
+    message = make_message(content, sender=sender_email)
+    message.sender = sender_name
+    result = HybridAnalyzer(None, "unused", 0.75).analyze(message)
+    assert result.classification == Classification.LOW_PRIORITY
+    assert result.reason == "Apex Focus Group is explicitly configured as low priority"

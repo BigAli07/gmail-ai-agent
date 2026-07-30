@@ -108,11 +108,12 @@ Windows Task Scheduler:
 
 ```powershell
 $agentLauncher = (Resolve-Path .\run-agent.cmd).Path
-schtasks.exe /Create /SC HOURLY /MO 1 /TN "Gmail AI Agent" /TR "`"$agentLauncher`"" /F
+schtasks.exe /Create /SC HOURLY /MO 1 /ST 06:00 /ET 14:00 /TN "Gmail AI Agent" /TR "`"$agentLauncher`"" /F
 ```
 
 `run-agent.cmd` changes to the project directory before starting Python, ensuring relative paths
-for `.env`, OAuth credentials, the token, lock, and SQLite database resolve correctly.
+for `.env`, OAuth credentials, the token, lock, and SQLite database resolve correctly. The example
+wake window runs hourly from 6:00 AM through 2:00 PM and does not wake the computer overnight.
 
 Docker (run hourly from the host scheduler; persist token and database):
 
@@ -143,6 +144,9 @@ Advent of Code, Meta Hacker Cup, and general coding, programming, developer, sof
 datathon, ideathon, capture-the-flag, or hackathon events. This content rule overrides sender type:
 invitations from companies, marketing systems, mailing lists, and no-reply addresses are included
 when the sender, subject, body, HTML, or attachment filename matches a competition or hackathon.
+
+Apex Focus Group messages are explicitly low priority. This sender-specific exclusion runs before
+all important-content rules.
 
 ## Testing
 
