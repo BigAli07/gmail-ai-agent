@@ -52,6 +52,7 @@ AI_NEWS = re.compile(
     re.I,
 )
 NEWS = re.compile(r"\b(current events|daily briefing|news roundup)\b", re.I)
+FORCED_LOW_PRIORITY = re.compile(r"\bapex\s*focus\s*group\b|\bapexfocusgroup\b", re.I)
 AUTOMATED_SENDER = re.compile(
     r"\b(no-?reply|do-?not-?reply|notifications?|alerts?|newsletter|news|"
     r"support|marketing|promotions?|jobs?|careers?|team|admin|service)\b",
@@ -67,6 +68,13 @@ COMPANY_NAME = re.compile(
 class RuleClassifier:
     def classify(self, message: EmailMessage) -> Analysis | None:
         text = message.classification_text
+        if FORCED_LOW_PRIORITY.search(text):
+            return Analysis(
+                classification=Classification.LOW_PRIORITY,
+                category=Category.LOW_PRIORITY,
+                confidence=1,
+                reason="Apex Focus Group is explicitly configured as low priority",
+            )
         for category, pattern, reason in ALWAYS_IMPORTANT:
             if pattern.search(text):
                 return Analysis(
