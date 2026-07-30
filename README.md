@@ -108,12 +108,14 @@ Windows Task Scheduler:
 
 ```powershell
 $agentLauncher = (Resolve-Path .\run-agent.cmd).Path
-schtasks.exe /Create /SC HOURLY /MO 1 /ST 06:00 /ET 14:00 /TN "Gmail AI Agent" /TR "`"$agentLauncher`"" /F
+schtasks.exe /Create /SC HOURLY /MO 1 /ST 06:00 /ET 23:59 /TN "Gmail AI Agent" /TR "`"$agentLauncher`"" /F
+schtasks.exe /Create /SC HOURLY /MO 1 /ST 00:00 /ET 01:00 /TN "Gmail AI Agent Late" /TR "`"$agentLauncher`"" /F
 ```
 
 `run-agent.cmd` changes to the project directory before starting Python, ensuring relative paths
-for `.env`, OAuth credentials, the token, lock, and SQLite database resolve correctly. The example
-wake window runs hourly from 6:00 AM through 2:00 PM and does not wake the computer overnight.
+for `.env`, OAuth credentials, the token, lock, and SQLite database resolve correctly. The two
+coordinated tasks run hourly from 6:00 AM through 1:00 AM the following night. They do not wake the
+computer after the 1:00 AM run until 6:00 AM, and the lock prevents overlapping agent runs.
 
 Docker (run hourly from the host scheduler; persist token and database):
 
